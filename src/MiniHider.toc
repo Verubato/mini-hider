@@ -1,0 +1,12 @@
+## Interface: 120001, 120000, 110207, 50503, 40402, 38000, 30405, 20505, 11508
+## Title: MiniHider
+## Notes: Hides various frames for a cleaner UI.
+## Author: Verz
+## Version: 1.0.0
+## IconTexture: Interface\AddOns\MiniHider\icon.blp
+## SavedVariables: MiniHiderDB
+## SavedVariablesPerCharacter: MiniHiderCharDB
+## X-Curse-Project-ID: 1420904
+
+Config.lua
+MiniHider.lua
