@@ -81,14 +81,14 @@ end
 local function LayoutSettings(settings, panel, relativeTo, xOffset, yOffset)
 	local x = xOffset
 	local y = yOffset
-	local bottomLeftCheckbopx = nil
+	local bottomLeftCheckbox = nil
 
 	for i, setting in ipairs(settings) do
 		local checkbox = CreateSettingCheckbox(panel, setting)
 		checkbox:SetPoint("TOPLEFT", relativeTo, "TOPLEFT", x, y)
 
-		if i == 0 or i % (checkboxesPerLine + 1) == 0 then
-			bottomLeftCheckbopx = checkbox
+		if not bottomLeftCheckbox or i % (checkboxesPerLine + 1) == 0 then
+			bottomLeftCheckbox = checkbox
 		end
 
 		if i % checkboxesPerLine == 0 then
@@ -99,7 +99,7 @@ local function LayoutSettings(settings, panel, relativeTo, xOffset, yOffset)
 		end
 	end
 
-	return bottomLeftCheckbopx
+	return bottomLeftCheckbox
 end
 
 function CanOpenOptionsDuringCombat()
