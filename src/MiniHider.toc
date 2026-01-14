@@ -3,7 +3,7 @@
 ## Notes: Hides various frames for a cleaner UI.
 ## Author: Verz
 ## Version: 1.0.0
-## IconTexture: Interface\AddOns\MiniHider\icon.blp
+## IconTexture: Interface\AddOns\MiniHider\Icon.blp
 ## SavedVariables: MiniHiderDB
 ## SavedVariablesPerCharacter: MiniHiderCharDB
 ## X-Curse-Project-ID: 1420904
