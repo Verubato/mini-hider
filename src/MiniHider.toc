@@ -8,5 +8,6 @@
 ## SavedVariablesPerCharacter: MiniHiderCharDB
 ## X-Curse-Project-ID: 1420904
 
+MiniFramework.lua
 Config.lua
 MiniHider.lua
