@@ -1,4 +1,6 @@
 local addonName, addon = ...
+---@type MiniFramework
+local mini = addon.Framework
 local verticalSpacing = 20
 local checkboxesPerLine = 4
 local checkboxWidth = 150
@@ -15,6 +17,9 @@ local dbDefaults = {
 	CompactPartyFrameTitle = true,
 	CompactArenaFrameTitle = true,
 	QuickJoinToastButton = false,
+	CompactArenaFrame = false,
+	BagsBar = false,
+	MicroMenu = false,
 }
 ---@class CharDB
 local charDbDefaults = {
@@ -55,47 +60,29 @@ local function AddCategory(panel)
 	return nil
 end
 
-local function CreateSettingCheckbox(panel, setting)
-	local checkbox = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
-	checkbox.Text:SetText(" " .. setting.Name)
-	checkbox.Text:SetFontObject("GameFontNormal")
-	checkbox:SetChecked(setting.Enabled())
-	checkbox:HookScript("OnClick", function()
-		setting.OnChanged(checkbox:GetChecked())
-	end)
-
-	checkbox:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:SetText(setting.Name, 1, 0.82, 0)
-		GameTooltip:AddLine(setting.Tooltip, 1, 1, 1, true)
-		GameTooltip:Show()
-	end)
-
-	checkbox:SetScript("OnLeave", function()
-		GameTooltip:Hide()
-	end)
-
-	return checkbox
-end
-
-local function LayoutSettings(settings, panel, relativeTo, xOffset, yOffset)
+local function LayoutSettings(settings, relativeTo, xOffset, yOffset)
 	local x = xOffset
 	local y = yOffset
 	local bottomLeftCheckbox = nil
+	local isNewRow = true
 
 	for i, setting in ipairs(settings) do
-		local checkbox = CreateSettingCheckbox(panel, setting)
+		local checkbox = mini:Checkbox(setting)
 		checkbox:SetPoint("TOPLEFT", relativeTo, "TOPLEFT", x, y)
 
-		if not bottomLeftCheckbox or i % (checkboxesPerLine + 1) == 0 then
+		if isNewRow then
 			bottomLeftCheckbox = checkbox
 		end
 
 		if i % checkboxesPerLine == 0 then
 			y = y - (verticalSpacing * 2)
 			x = xOffset
+
+			isNewRow = true
 		else
 			x = x + checkboxWidth
+
+			isNewRow = false
 		end
 	end
 
@@ -135,81 +122,125 @@ function M:Init()
 	description:SetPoint("TOPLEFT", title, 0, -verticalSpacing)
 	description:SetText("Hide various frames for a cleaner UI.")
 
+	---@type CheckboxOptions[]
 	local settings = {
 		{
-			Name = "Resting animation",
+			Parent = panel,
+			LabelText = "Resting animation",
 			Tooltip = "Hides the playing 'zzz' animation loop.",
-			Enabled = function()
+			GetValue = function()
 				return db.PlayerRestLoop
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				db.PlayerRestLoop = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "Prestidge badges",
+			Parent = panel,
+			LabelText = "Prestidge badges",
 			Tooltip = "Hides the player, target, and focus prestige badges.",
-			Enabled = function()
+			GetValue = function()
 				return db.PrestigeBadges
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				db.PrestigeBadges = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "Player corner icon",
+			Parent = panel,
+			LabelText = "Player corner icon",
 			Tooltip = "Hides the player portrait bottom right corner icon.",
-			Enabled = function()
+			GetValue = function()
 				return db.PlayerPortraitCornerIcon
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				db.PlayerPortraitCornerIcon = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "Player level text",
+			Parent = panel,
+			LabelText = "Player level text",
 			Tooltip = "Hides the player portrait level text.",
-			Enabled = function()
+			GetValue = function()
 				return db.PlayerLevelText
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				db.PlayerLevelText = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "Party title",
-			Tooltip = "Hides the party frames title.",
-			Enabled = function()
-				return db.CompactPartyFrameTitle
+			Parent = panel,
+			LabelText = "Arena Frames",
+			Tooltip = "Hides the blizzard arena frames.",
+			GetValue = function()
+				return db.CompactArenaFrame
 			end,
-			OnChanged = function(enabled)
-				db.CompactPartyFrameTitle = enabled
+			SetValue = function(enabled)
+				db.CompactArenaFrame = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "Arena title",
+			Parent = panel,
+			LabelText = "Arena title",
 			Tooltip = "Hides the arena frames title.",
-			Enabled = function()
+			GetValue = function()
 				return db.CompactArenaFrameTitle
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				db.CompactArenaFrameTitle = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "Social icon",
+			Parent = panel,
+			LabelText = "Party title",
+			Tooltip = "Hides the party frames title.",
+			GetValue = function()
+				return db.CompactPartyFrameTitle
+			end,
+			SetValue = function(enabled)
+				db.CompactPartyFrameTitle = enabled
+				addon:Run()
+			end,
+		},
+		{
+			Parent = panel,
+			LabelText = "Social icon",
 			Tooltip = "Hides the social icon (a.k.a quick join toast button) above the chat window.",
-			Enabled = function()
+			GetValue = function()
 				return db.QuickJoinToastButton
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				db.QuickJoinToastButton = enabled
+				addon:Run()
+			end,
+		},
+		{
+			Parent = panel,
+			LabelText = "Bags bar",
+			Tooltip = "Hides the bags bar.",
+			GetValue = function()
+				return db.BagsBar
+			end,
+			SetValue = function(enabled)
+				db.BagsBar = enabled
+				addon:Run()
+			end,
+		},
+		{
+			Parent = panel,
+			LabelText = "Micro menu",
+			Tooltip = "Hides the micro menu.",
+			GetValue = function()
+				return db.MicroMenu
+			end,
+			SetValue = function(enabled)
+				db.MicroMenu = enabled
 				addon:Run()
 			end,
 		},
@@ -219,38 +250,41 @@ function M:Init()
 	globalHeading:SetPoint("TOPLEFT", description, 0, -verticalSpacing * 2)
 	globalHeading:SetText("Global settings:")
 
-	local anchor = LayoutSettings(settings, panel, globalHeading, 0, -verticalSpacing)
+	local anchor = LayoutSettings(settings, globalHeading, 0, -verticalSpacing)
 
 	local charHeading = panel:CreateFontString(nil, "ARTWORK", "GameFontWhite")
 	charHeading:SetPoint("TOPLEFT", anchor, 0, -verticalSpacing * 3)
 	charHeading:SetText("Character settings:")
 
+	---@type CheckboxOptions[]
 	local charSettings = {
 		{
-			Name = "Stance Bar",
+			Parent = panel,
+			LabelText= "Stance Bar",
 			Tooltip = "Hides the stance bar (druid forms, warrior stances).",
-			Enabled = function()
+			GetValue = function()
 				return charDb.StanceBar
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				charDb.StanceBar = enabled
 				addon:Run()
 			end,
 		},
 		{
-			Name = "HotKeys Text",
+			Parent = panel,
+			LabelText = "HotKeys Text",
 			Tooltip = "Hides the hot keys text on your action bars.",
-			Enabled = function()
+			GetValue = function()
 				return charDb.HotKeysText
 			end,
-			OnChanged = function(enabled)
+			SetValue = function(enabled)
 				charDb.HotKeysText = enabled
 				addon:Run()
 			end,
 		},
 	}
 
-	LayoutSettings(charSettings, panel, charHeading, 0, -verticalSpacing)
+	LayoutSettings(charSettings, charHeading, 0, -verticalSpacing)
 
 	SLASH_MINIHIDER1 = "/minihider"
 	SLASH_MINIHIDER2 = "/mh"

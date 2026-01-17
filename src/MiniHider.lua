@@ -1,5 +1,9 @@
-local addonName, addon = ...
+local _, addon = ...
+---@type MiniFramework
+local mini = addon.Framework
+local eventsFrame
 local playerIconFiller
+local hiddenFrame
 ---@type DB
 local db
 ---@type CharDB
@@ -245,6 +249,54 @@ local function ShowHideHotkeys()
 	didWeHide["HotKeysText"] = not show
 end
 
+function ShowHideArenaFrames()
+	local show = type(db.CompactArenaFrame) == "boolean" and not db.CompactArenaFrame
+
+	if show and not didWeHide["CompactArenaFrame"] then
+		return
+	end
+
+	if show then
+		CompactArenaFrame:SetParent(UIParent)
+	else
+		CompactArenaFrame:SetParent(hiddenFrame)
+	end
+
+	didWeHide["CompactArenaFrame"] = not show
+end
+
+function ShowHideBags()
+	local show = type(db.BagsBar) == "boolean" and not db.BagsBar
+
+	if show and not didWeHide["BagsBar"] then
+		return
+	end
+
+	if show then
+		BagsBar:Show()
+	else
+		BagsBar:Hide()
+	end
+
+	didWeHide["BagsBar"] = not show
+end
+
+function ShowHideMicroMenu()
+	local show = type(db.MicroMenu) == "boolean" and not db.MicroMenu
+
+	if show and not didWeHide["MicroMenu"] then
+		return
+	end
+
+	if show then
+		MicroMenu:Show()
+	else
+		MicroMenu:Hide()
+	end
+
+	didWeHide["MicroMenu"] = not show
+end
+
 function addon:Run()
 	ShowHideStanceBar()
 	ShowHideRestingAnimation()
@@ -255,6 +307,9 @@ function addon:Run()
 	ShowHideArenaTitle()
 	ShowHideToastButton()
 	ShowHideHotkeys()
+	ShowHideArenaFrames()
+	ShowHideBags()
+	ShowHideMicroMenu()
 end
 
 local function OnEvent()
@@ -264,21 +319,18 @@ local function OnEvent()
 	end)
 end
 
-local function Init()
+local function OnAddonLoaded()
 	addon.Config:Init()
 
-	db = MiniHiderDB or {}
-	charDb = MiniHiderCharDB or {}
+	db = mini:GetSavedVars()
+	charDb = mini:GetCharacterSavedVars()
+
+	hiddenFrame = CreateFrame("Frame")
+	hiddenFrame:Hide()
+
+	eventsFrame = CreateFrame("Frame")
+	eventsFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	eventsFrame:SetScript("OnEvent", OnEvent)
 end
 
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("ADDON_LOADED")
-frame:SetScript("OnEvent", function(_, event, arg1)
-	if event == "ADDON_LOADED" and arg1 == addonName then
-		Init()
-
-		frame:UnregisterEvent("ADDON_LOADED")
-		frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-		frame:SetScript("OnEvent", OnEvent)
-	end
-end)
+mini:WaitForAddonLoad(OnAddonLoaded)
