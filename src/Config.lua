@@ -20,6 +20,7 @@ local dbDefaults = {
 	CompactArenaFrame = false,
 	BagsBar = false,
 	MicroMenu = false,
+	HotKeysBorder = false,
 }
 ---@class CharDB
 local charDbDefaults = {
@@ -98,11 +99,8 @@ function CanOpenOptionsDuringCombat()
 end
 
 function M:Init()
-	MiniHiderDB = MiniHiderDB or {}
-	MiniHiderCharDB = MiniHiderCharDB or {}
-
-	db = CopyTable(dbDefaults, MiniHiderDB)
-	charDb = CopyTable(charDbDefaults, MiniHiderCharDB)
+	db = mini:GetSavedVars(dbDefaults)
+	charDb = mini:GetCharacterSavedVars(charDbDefaults)
 
 	local panel = CreateFrame("Frame")
 	panel.name = addonName
@@ -244,6 +242,18 @@ function M:Init()
 				addon:Run()
 			end,
 		},
+		{
+			Parent = panel,
+			LabelText = "HotKeys Border",
+			Tooltip = "Hides the hot key borders on your action bars.",
+			GetValue = function()
+				return db.HotKeysBorder
+			end,
+			SetValue = function(enabled)
+				db.HotKeysBorder = enabled
+				addon:Run()
+			end,
+		},
 	}
 
 	local globalHeading = panel:CreateFontString(nil, "ARTWORK", "GameFontWhite")
@@ -260,7 +270,7 @@ function M:Init()
 	local charSettings = {
 		{
 			Parent = panel,
-			LabelText= "Stance Bar",
+			LabelText = "Stance Bar",
 			Tooltip = "Hides the stance bar (druid forms, warrior stances).",
 			GetValue = function()
 				return charDb.StanceBar

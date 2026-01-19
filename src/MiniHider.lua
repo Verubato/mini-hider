@@ -249,6 +249,39 @@ local function ShowHideHotkeys()
 	didWeHide["HotKeysText"] = not show
 end
 
+local function ShowHideHotkeysBorder()
+	local show = type(db.HotKeysBorder) == "boolean" and not db.HotKeysBorder
+
+	if show and not didWeHide["HotKeysBorder"] then
+		return
+	end
+
+	local alpha = show and 1 or 0
+
+	local names = {
+		"ActionButton",
+		"MultiBarBottomLeftButton",
+		"MultiBarBottomRightButton",
+		"MultiBarRightButton",
+		"MultiBarLeftButton",
+		"MultiBar5Button",
+		"MultiBar6Button",
+		"MultiBar7Button",
+	}
+
+	for _, prefix in ipairs(names) do
+		for i = 1, 12 do
+			local button = _G[prefix .. i]
+
+			if button then
+				button.NormalTexture:SetAlpha(alpha)
+			end
+		end
+	end
+
+	didWeHide["HotKeysBorder"] = not show
+end
+
 function ShowHideArenaFrames()
 	local show = type(db.CompactArenaFrame) == "boolean" and not db.CompactArenaFrame
 
@@ -307,6 +340,7 @@ function addon:Run()
 	ShowHideArenaTitle()
 	ShowHideToastButton()
 	ShowHideHotkeys()
+	ShowHideHotkeysBorder()
 	ShowHideArenaFrames()
 	ShowHideBags()
 	ShowHideMicroMenu()
