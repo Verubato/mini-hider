@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+
+Removed accidental toc support for non-supported clients.
+
 ## 1.5.0
 
 Added option to hide help tips.
