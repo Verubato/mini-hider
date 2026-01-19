@@ -4,6 +4,7 @@ local mini = addon.Framework
 local eventsFrame
 local playerIconFiller
 local hiddenFrame
+local RegisterCVar = C_CVar and C_CVar.RegisterCVar or RegisterCVar
 ---@type DB
 local db
 ---@type CharDB
@@ -357,6 +358,20 @@ function ShowHideMicroMenu()
 	didWeHide["MicroMenu"] = not show
 end
 
+local function ShowHideHelpTips()
+	local show = type(db.Helptips) == "boolean" and not db.Helptips
+
+	if show and not didWeHide["Helptips"] then
+		return
+	end
+
+	local cvarName = "hideHelptips"
+
+	RegisterCVar(cvarName, show and 0 or 1)
+
+	didWeHide["Helptips"] = not show
+end
+
 function addon:Run()
 	ShowHideStanceBar()
 	ShowHideRestingAnimation()
@@ -372,6 +387,7 @@ function addon:Run()
 	ShowHideBags()
 	ShowHideMicroMenu()
 	ShowHideXpAndRep()
+	ShowHideHelpTips()
 end
 
 local function OnEvent()
@@ -379,6 +395,9 @@ local function OnEvent()
 	C_Timer.After(0, function()
 		addon:Run()
 	end)
+
+	-- hide help tips straight away though, as it'll be too late after 1 frame
+	ShowHideHelpTips()
 end
 
 local function OnAddonLoaded()

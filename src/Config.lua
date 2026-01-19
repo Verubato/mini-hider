@@ -22,6 +22,7 @@ local dbDefaults = {
 	MicroMenu = false,
 	HotKeysBorder = false,
 	StatusTrackingBarManager = false,
+	Helptips = false,
 }
 ---@class CharDB
 local charDbDefaults = {
@@ -240,6 +241,18 @@ function M:Init()
 			end,
 			SetValue = function(enabled)
 				db.StatusTrackingBarManager = enabled
+				addon:Run()
+			end,
+		},
+		{
+			Parent = panel,
+			LabelText = "Help tips",
+			Tooltip = "Hides tooltips such as new profession points and new collections.",
+			GetValue = function()
+				return db.Helptips
+			end,
+			SetValue = function(enabled)
+				db.Helptips = enabled
 				addon:Run()
 			end,
 		},
