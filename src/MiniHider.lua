@@ -207,6 +207,28 @@ local function ShowHidePlayerLevel()
 	didWeHide["PlayerLevelText"] = not show
 end
 
+local function ShowHideXpAndRep()
+	local show = type(db.StatusTrackingBarManager) == "boolean" and not db.StatusTrackingBarManager
+
+	if show and not didWeHide["StatusTrackingBarManager"] then
+		return
+	end
+
+	local target = StatusTrackingBarManager
+
+	if not target then
+		return
+	end
+
+	if show then
+		target:Show()
+	else
+		target:Hide()
+	end
+
+	didWeHide["StatusTrackingBarManager"] = not show
+end
+
 local function ShowHideHotkeys()
 	local show = type(charDb.HotKeysText) == "boolean" and not charDb.HotKeysText
 
@@ -344,6 +366,7 @@ function addon:Run()
 	ShowHideArenaFrames()
 	ShowHideBags()
 	ShowHideMicroMenu()
+	ShowHideXpAndRep()
 end
 
 local function OnEvent()

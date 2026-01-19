@@ -21,6 +21,7 @@ local dbDefaults = {
 	BagsBar = false,
 	MicroMenu = false,
 	HotKeysBorder = false,
+	StatusTrackingBarManager = false,
 }
 ---@class CharDB
 local charDbDefaults = {
@@ -227,6 +228,18 @@ function M:Init()
 			end,
 			SetValue = function(enabled)
 				db.HotKeysBorder = enabled
+				addon:Run()
+			end,
+		},
+		{
+			Parent = panel,
+			LabelText = "XP and Rep",
+			Tooltip = "Hides the xp and reputation bars.",
+			GetValue = function()
+				return db.StatusTrackingBarManager
+			end,
+			SetValue = function(enabled)
+				db.StatusTrackingBarManager = enabled
 				addon:Run()
 			end,
 		},
