@@ -138,7 +138,12 @@ local function ShowHideToastButton()
 		return
 	end
 
-	target:SetAlpha(show and 1 or 0)
+	if show then
+		target:Show()
+	else
+		target:Hide()
+	end
+
 	didWeHide["QuickJoinToastButton"] = not show
 end
 
