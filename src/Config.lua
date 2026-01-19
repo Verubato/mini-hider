@@ -113,7 +113,7 @@ function M:Init()
 		},
 		{
 			Parent = panel,
-			LabelText = "Prestidge badges",
+			LabelText = "Prestige badges",
 			Tooltip = "Hides the player, target, and focus prestige badges.",
 			GetValue = function()
 				return db.PrestigeBadges
