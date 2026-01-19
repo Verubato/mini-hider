@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0
+
+Added option to hide xp and rep bars.
+
 ## 1.3.0
 
 Added option to hide hotkey borders.
