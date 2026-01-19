@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0
+
+Added option to hide help tips.
+
 ## 1.4.0
 
 Added option to hide xp and rep bars.
