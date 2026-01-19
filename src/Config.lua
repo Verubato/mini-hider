@@ -30,22 +30,6 @@ local charDbDefaults = {
 local M = {}
 addon.Config = M
 
-local function CopyTable(src, dst)
-	if type(dst) ~= "table" then
-		dst = {}
-	end
-
-	for k, v in pairs(src) do
-		if type(v) == "table" then
-			dst[k] = CopyTable(v, dst[k])
-		elseif dst[k] == nil then
-			dst[k] = v
-		end
-	end
-
-	return dst
-end
-
 local function AddCategory(panel)
 	if Settings then
 		local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
