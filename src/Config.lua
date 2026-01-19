@@ -74,14 +74,6 @@ local function LayoutSettings(settings, relativeTo, xOffset, yOffset)
 	return bottomLeftCheckbox
 end
 
-function CanOpenOptionsDuringCombat()
-	if LE_EXPANSION_LEVEL_CURRENT == nil or LE_EXPANSION_MIDNIGHT == nil then
-		return true
-	end
-
-	return LE_EXPANSION_LEVEL_CURRENT < LE_EXPANSION_MIDNIGHT
-end
-
 function M:Init()
 	db = mini:GetSavedVars(dbDefaults)
 	charDb = mini:GetCharacterSavedVars(charDbDefaults)
@@ -280,19 +272,8 @@ function M:Init()
 
 	LayoutSettings(charSettings, charHeading, 0, -verticalSpacing)
 
-	SLASH_MINIHIDER1 = "/minihider"
-	SLASH_MINIHIDER2 = "/mh"
-
-	SlashCmdList.MINIHIDER = function()
-		if Settings then
-			if not InCombatLockdown() or CanOpenOptionsDuringCombat() then
-				Settings.OpenToCategory(category:GetID())
-			end
-		elseif InterfaceOptionsFrame_OpenToCategory then
-			-- workaround the classic bug where the first call opens the Game interface
-			-- and a second call is required
-			InterfaceOptionsFrame_OpenToCategory(panel)
-			InterfaceOptionsFrame_OpenToCategory(panel)
-		end
-	end
+	mini:RegisterSlashCommand(category, panel, {
+		"/minihider",
+		"/mh",
+	})
 end
