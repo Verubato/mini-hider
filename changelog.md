@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2
+
+In combat lockdown check.
+
 ## 1.5.1
 
 Removed accidental toc support for non-supported clients.
