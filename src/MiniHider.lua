@@ -373,6 +373,11 @@ local function ShowHideHelpTips()
 end
 
 function addon:Run()
+	if InCombatLockdown() then
+		mini:Notify("Can't do that during combat.")
+		return
+	end
+
 	ShowHideStanceBar()
 	ShowHideRestingAnimation()
 	ShowHidePrestigeBadge()
@@ -391,13 +396,14 @@ function addon:Run()
 end
 
 local function OnEvent()
-	-- seems we still need to wait a frame for hotkeys text to load
+	-- run now for frames that exist and cvars
+	addon:Run()
+
+	-- but we also need to schedule a run for 1 frame later
+	-- for example hotkeys text don't exist yet
 	C_Timer.After(0, function()
 		addon:Run()
 	end)
-
-	-- hide help tips straight away though, as it'll be too late after 1 frame
-	ShowHideHelpTips()
 end
 
 local function OnAddonLoaded()
