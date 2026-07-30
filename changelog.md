@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3
+
+12.1 version support
+
 ## 1.5.2
 
 In combat lockdown check.
