@@ -77,7 +77,6 @@ function M:Init()
 	local header = mini:PanelHeader({
 		Parent = panel,
 		Description = "Hide various frames for a cleaner UI.",
-		Y = -verticalSpacing,
 		Gap = 4,
 	})
 
