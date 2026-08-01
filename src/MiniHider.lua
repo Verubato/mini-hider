@@ -374,7 +374,7 @@ end
 
 function addon:Run()
 	if InCombatLockdown() then
-		mini:Notify("Can't do that during combat.")
+		mini:NotifyCombatLockdown()
 		return
 	end
 

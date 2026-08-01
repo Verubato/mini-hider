@@ -32,21 +32,6 @@ local charDbDefaults = {
 local M = {}
 addon.Config = M
 
-local function AddCategory(panel)
-	if Settings then
-		local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
-		Settings.RegisterAddOnCategory(category)
-
-		return category
-	elseif InterfaceOptions_AddCategory then
-		InterfaceOptions_AddCategory(panel)
-
-		return panel
-	end
-
-	return nil
-end
-
 local function LayoutSettings(settings, relativeTo, xOffset, yOffset)
 	local x = xOffset
 	local y = yOffset
@@ -83,20 +68,18 @@ function M:Init()
 	local panel = CreateFrame("Frame")
 	panel.name = addonName
 
-	local category = AddCategory(panel)
+	local category = mini:AddCategory(panel)
 
 	if not category then
 		return
 	end
 
-	local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
-	local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-	title:SetPoint("TOPLEFT", 0, -verticalSpacing)
-	title:SetText(string.format("%s - %s", addonName, version))
-
-	local description = panel:CreateFontString(nil, "ARTWORK", "GameFontWhite")
-	description:SetPoint("TOPLEFT", title, 0, -verticalSpacing)
-	description:SetText("Hide various frames for a cleaner UI.")
+	local header = mini:PanelHeader({
+		Parent = panel,
+		Description = "Hide various frames for a cleaner UI.",
+		Y = -verticalSpacing,
+		Gap = 4,
+	})
 
 	---@type CheckboxOptions[]
 	local settings = {
@@ -259,7 +242,7 @@ function M:Init()
 	}
 
 	local globalHeading = panel:CreateFontString(nil, "ARTWORK", "GameFontWhite")
-	globalHeading:SetPoint("TOPLEFT", description, 0, -verticalSpacing * 2)
+	globalHeading:SetPoint("TOPLEFT", header.Anchor, 0, -verticalSpacing * 2)
 	globalHeading:SetText("Global settings:")
 
 	local anchor = LayoutSettings(settings, globalHeading, 0, -verticalSpacing)
