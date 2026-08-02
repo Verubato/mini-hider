@@ -2,7 +2,7 @@
 ## Title: MiniHider
 ## Notes: Hides various frames for a cleaner UI.
 ## Author: Verz
-## Version: 1.6.0
+## Version: 1.6.1
 ## IconTexture: Interface\AddOns\MiniHider\Icon.blp
 ## SavedVariables: MiniHiderDB
 ## SavedVariablesPerCharacter: MiniHiderCharDB
