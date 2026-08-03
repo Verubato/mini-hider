@@ -29,6 +29,7 @@ local charDbDefaults = {
 	StanceBar = false,
 	HotKeysText = false,
 }
+---@class Config
 local M = {}
 addon.Config = M
 
