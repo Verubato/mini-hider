@@ -25,7 +25,7 @@ Feedback and feature requests are more than welcome!
 
 ## Screenshots
 
-![MiniHider screenshot](https://raw.githubusercontent.com/Verubato/mini-hider/main/assets/Screenshot.png)
+![MiniHider screenshot](https://raw.githubusercontent.com/Verubato/mini-hider/main/assets/Screenshots/Settings.png)
 
 ## Download
 
