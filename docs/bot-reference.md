@@ -8,9 +8,9 @@ MiniHider hides individual pieces of the default Blizzard UI for a cleaner look:
 
 | Item | Value |
 |---|---|
-| Addon version | 1.6.3 |
+| Addon version | 1.6.4 |
 | Author | Verz |
-| Interface versions (TOC) | 120100, 120007, 120001, 120000, 110207 (Retail only) |
+| Interface versions (TOC) | 120100 (Retail only) |
 | Saved variables | MiniHiderDB (account-wide), MiniHiderCharDB (per character) |
 | Slash commands | /minihider, /mh (both open the options panel) |
 | Options location | Game Menu -> Options -> AddOns -> MiniHider |
@@ -71,4 +71,4 @@ There is no reset button and no other settings; the two sections above are the w
 - "There's a black square on my player portrait": that is the filler texture that patches the hole left by hiding the player corner icon. Unchecking "Player corner icon" removes it.
 - "MiniHider hid something another addon needs / another addon's frame": it only touches the specific Blizzard frames listed above, and only re-shows frames it hid itself.
 - "Help tips still appear": the setting sets the hideHelptips CVar when toggled; try toggling it off and on again out of combat, then check for other addons or game settings that manage help tips.
-- "Does it work on Classic?": no, the TOC only supports Retail (11.0.x / 12.x clients).
+- "Does it work on Classic?": no, the TOC only supports Retail 12.1.
