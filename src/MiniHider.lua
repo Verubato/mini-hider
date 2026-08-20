@@ -310,7 +310,7 @@ local function ShowHideHotkeysBorder()
 	didWeHide["HotKeysBorder"] = not show
 end
 
-function ShowHideArenaFrames()
+local function ShowHideArenaFrames()
 	local show = type(db.CompactArenaFrame) == "boolean" and not db.CompactArenaFrame
 
 	if show and not didWeHide["CompactArenaFrame"] then
@@ -326,7 +326,7 @@ function ShowHideArenaFrames()
 	didWeHide["CompactArenaFrame"] = not show
 end
 
-function ShowHideBags()
+local function ShowHideBags()
 	local show = type(db.BagsBar) == "boolean" and not db.BagsBar
 
 	if show and not didWeHide["BagsBar"] then
@@ -342,7 +342,7 @@ function ShowHideBags()
 	didWeHide["BagsBar"] = not show
 end
 
-function ShowHideMicroMenu()
+local function ShowHideMicroMenu()
 	local show = type(db.MicroMenu) == "boolean" and not db.MicroMenu
 
 	if show and not didWeHide["MicroMenu"] then
