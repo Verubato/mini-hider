@@ -11,6 +11,7 @@ io.write("MiniHider - unit tests\n")
 io.write("======================================\n")
 
 local testFiles = {
+	"tests/TestVisibility.lua",
 	"tests/TestSmoke.lua",
 }
 
