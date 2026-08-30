@@ -63,6 +63,9 @@ local function LayoutSettings(settings, relativeTo, xOffset, yOffset)
 end
 
 function M:Init()
+	-- A styled button clashes with the stock Blizzard art around it in the settings screen.
+	mini:SetCustomStyling(true, { Button = false })
+
 	db = mini:GetSavedVars(dbDefaults)
 	charDb = mini:GetCharacterSavedVars(charDbDefaults)
 
@@ -241,15 +244,23 @@ function M:Init()
 		},
 	}
 
-	local globalHeading = panel:CreateFontString(nil, "ARTWORK", "GameFontWhite")
-	globalHeading:SetPoint("TOPLEFT", header.Anchor, 0, -verticalSpacing * 2)
-	globalHeading:SetText("Global settings:")
+	local globalDivider = mini:Divider({
+		Parent = panel,
+		Text = "Global",
+	})
 
-	local anchor = LayoutSettings(settings, globalHeading, 0, -verticalSpacing)
+	globalDivider:SetPoint("TOPLEFT", header.Anchor, 0, -verticalSpacing * 2)
+	globalDivider:SetPoint("RIGHT", panel, "RIGHT", 0, 0)
 
-	local charHeading = panel:CreateFontString(nil, "ARTWORK", "GameFontWhite")
-	charHeading:SetPoint("TOPLEFT", anchor, 0, -verticalSpacing * 3)
-	charHeading:SetText("Character settings:")
+	local anchor = LayoutSettings(settings, globalDivider, 0, -verticalSpacing * 2)
+
+	local charDivider = mini:Divider({
+		Parent = panel,
+		Text = "Character",
+	})
+
+	charDivider:SetPoint("TOPLEFT", anchor, 0, -verticalSpacing * 3)
+	charDivider:SetPoint("RIGHT", panel, "RIGHT", 0, 0)
 
 	---@type CheckboxOptions[]
 	local charSettings = {
@@ -279,7 +290,7 @@ function M:Init()
 		},
 	}
 
-	LayoutSettings(charSettings, charHeading, 0, -verticalSpacing)
+	LayoutSettings(charSettings, charDivider, 0, -verticalSpacing * 2)
 
 	mini:RegisterSlashCommand(category, panel, {
 		"/minihider",
