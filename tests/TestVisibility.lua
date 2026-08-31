@@ -3,9 +3,6 @@
 -- shares: didWeHide, and the early-exit guard it drives, which is what stops MiniHider from
 -- fighting Blizzard's or another addon's own state once it has nothing left to change.
 --
--- CompactArenaFrameTitle's own guard reads `show` before the local is declared, so it never
--- fires. The "arena title guard" block below pins that as a known bug rather than a passing case.
---
 -- Three elements carry extra bookkeeping of their own: the corner icon (alpha, plus a filler
 -- texture it only creates once), the toast button (Show/Hide rather than alpha, and one
 -- Blizzard toggles itself), and the stance bar (a character-scoped setting driving
@@ -190,8 +187,8 @@ fw.describe("MiniHider - stance bar bookkeeping (character-scoped)", function()
 	end)
 end)
 
-fw.describe("MiniHider - arena title guard (known bug)", function()
-	fw.it("snaps the arena title to shown on every pass, unlike the party title beside it", function()
+fw.describe("MiniHider - arena title guard", function()
+	fw.it("never touches the arena title when it was never hidden", function()
 		local context = LoginWith({ CompactArenaFrameTitle = false, CompactPartyFrameTitle = false })
 
 		_G.CompactArenaFrameTitle = WowMock.NewFrame("Frame")
@@ -202,9 +199,29 @@ fw.describe("MiniHider - arena title guard (known bug)", function()
 
 		context.Addon:Run()
 
-		-- Known bug: ShowHideArenaTitle's guard reads `show` before its local declaration, so
-		-- it always sees a nil global and never returns early.
-		fw.eq(_G.CompactArenaFrameTitle:GetAlpha(), 1, "snapped to shown even though MiniHider never hid it")
-		fw.eq(_G.CompactPartyFrameTitle:GetAlpha(), 0.6, "the working sibling leaves an untouched title alone")
+		fw.eq(_G.CompactArenaFrameTitle:GetAlpha(), 0.6, "MiniHider never hid it, so it never touches it")
+		fw.eq(_G.CompactPartyFrameTitle:GetAlpha(), 0.6, "the working sibling leaves an untouched title alone too")
+	end)
+
+	fw.it("restores the arena title, then leaves later changes alone", function()
+		local context = LoginWith({ CompactArenaFrameTitle = true })
+
+		_G.CompactArenaFrameTitle = WowMock.NewFrame("Frame")
+		_G.CompactArenaFrameTitle:SetAlpha(1)
+
+		context.Addon:Run()
+
+		fw.eq(_G.CompactArenaFrameTitle:GetAlpha(), 0, "hidden")
+
+		_G.MiniHiderDB.CompactArenaFrameTitle = false
+		context.Addon:Run()
+
+		fw.eq(_G.CompactArenaFrameTitle:GetAlpha(), 1, "shown again once the setting turns off")
+
+		-- Something else can legitimately fade this once MiniHider is done with it.
+		_G.CompactArenaFrameTitle:SetAlpha(0.6)
+		context.Addon:Run()
+
+		fw.eq(_G.CompactArenaFrameTitle:GetAlpha(), 0.6, "left alone after being shown again")
 	end)
 end)

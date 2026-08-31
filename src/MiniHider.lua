@@ -187,11 +187,12 @@ local function ShowHideArenaTitle()
 		return
 	end
 
+	local show = type(db.CompactArenaFrameTitle) == "boolean" and not db.CompactArenaFrameTitle
+
 	if show and not didWeHide["CompactArenaFrameTitle"] then
 		return
 	end
 
-	local show = type(db.CompactArenaFrameTitle) == "boolean" and not db.CompactArenaFrameTitle
 	target:SetAlpha(show and 1 or 0)
 	didWeHide["CompactArenaFrameTitle"] = not show
 end
