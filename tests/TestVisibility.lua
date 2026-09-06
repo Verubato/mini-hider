@@ -3,10 +3,11 @@
 -- shares: didWeHide, and the early-exit guard it drives, which is what stops MiniHider from
 -- fighting Blizzard's or another addon's own state once it has nothing left to change.
 --
--- Three elements carry extra bookkeeping of their own: the corner icon (alpha, plus a filler
--- texture it only creates once), the toast button (Show/Hide rather than alpha, and one
--- Blizzard toggles itself), and the stance bar (a character-scoped setting driving
--- RegisterAttributeDriver, a mechanism the shared mock doesn't record on its own).
+-- Four kinds of element carry extra bookkeeping of their own: the corner icon (alpha, plus a
+-- filler texture it only creates once), the toast button (Show/Hide rather than alpha, and one
+-- Blizzard toggles itself), the stance bar (a character-scoped setting driving
+-- RegisterAttributeDriver, a mechanism the shared mock doesn't record on its own), and the hit
+-- indicators (a reparent, plus the anchors they have to hand back).
 
 local fw = require("TestFramework")
 local harness = require("AddonHarness")
@@ -31,6 +32,31 @@ end
 
 local function ToastButton()
 	return _G.QuickJoinToastButton
+end
+
+---Hangs a hit indicator off the player frame the way retail does, since the shared mock
+---doesn't carry one, and anchors it so the restore has points to put back.
+---@return table indicator, table parent
+local function NewHitIndicator()
+	local main = _G.PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
+	local indicator = WowMock.NewFrame("Frame", nil, main)
+
+	indicator:SetPoint("CENTER", main, "CENTER", 3, -7)
+	main.HitIndicator = indicator
+
+	return indicator, main
+end
+
+---Hangs the pet's hit indicator off the pet frame the way retail does, as the font string it
+---really is rather than a frame, and anchors it so the restore has points to put back.
+---@return table indicator, table parent
+local function NewPetHitIndicator()
+	local parent = _G.PetFrame
+	local indicator = WowMock.NewFrame("FontString", "PetHitIndicator", parent)
+
+	indicator:SetPoint("CENTER", parent, "CENTER", -2, 4)
+
+	return indicator, parent
 end
 
 ---Replaces the mock's no-op RegisterAttributeDriver with one that records every call, since
@@ -223,5 +249,184 @@ fw.describe("MiniHider - arena title guard", function()
 		context.Addon:Run()
 
 		fw.eq(_G.CompactArenaFrameTitle:GetAlpha(), 0.6, "left alone after being shown again")
+	end)
+end)
+
+-- Blizzard sets these regions' alpha every time they flash a number, so MiniHider moves them
+-- instead of fading them.
+fw.describe("MiniHider - hit indicator parking", function()
+	fw.it("never touches either hit indicator when it was never hidden", function()
+		local context = LoginWith({ HitIndicator = false })
+		local player, playerParent = NewHitIndicator()
+		local pet, petParent = NewPetHitIndicator()
+
+		context.Addon:Run()
+
+		fw.eq(player:GetParent(), playerParent, "MiniHider never hid it, so it never reparents it")
+		fw.eq(pet:GetParent(), petParent, "same for the pet's")
+	end)
+
+	fw.it("parks both hit indicators on every pass, not just the first", function()
+		local context = LoginWith({ HitIndicator = true })
+		local player, playerParent = NewHitIndicator()
+		local pet, petParent = NewPetHitIndicator()
+
+		context.Addon:Run()
+
+		fw.neq(player:GetParent(), playerParent, "moved off the player frame")
+		fw.neq(pet:GetParent(), petParent, "moved off the pet frame")
+		fw.falsy(player:GetParent():IsShown(), "the player's is parked on a hidden parent")
+		fw.falsy(pet:GetParent():IsShown(), "the pet's is parked on a hidden parent")
+
+		context.Addon:Run()
+
+		fw.falsy(player:GetParent():IsShown(), "the player's is still parked on a repeat pass")
+		fw.falsy(pet:GetParent():IsShown(), "the pet's is still parked on a repeat pass")
+	end)
+
+	fw.it("restores both hit indicators, each to its own parent and anchors", function()
+		local context = LoginWith({ HitIndicator = true })
+		local player, playerParent = NewHitIndicator()
+		local pet, petParent = NewPetHitIndicator()
+
+		context.Addon:Run()
+		fw.neq(player:GetParent(), playerParent, "the player's is parked")
+		fw.neq(pet:GetParent(), petParent, "the pet's is parked")
+
+		-- the client drops a region's anchors when it changes parent, which the mock doesn't
+		-- model, so do it by hand
+		player:ClearAllPoints()
+		pet:ClearAllPoints()
+
+		_G.MiniHiderDB.HitIndicator = false
+		context.Addon:Run()
+
+		fw.eq(player:GetParent(), playerParent, "the player's comes home to the player frame")
+		fw.eq(pet:GetParent(), petParent, "the pet's comes home to the pet frame, not the player's")
+
+		local playerPoint, playerRelativeTo, playerRelativePoint, playerX, playerY = player:GetPoint(1)
+
+		fw.eq(player:GetNumPoints(), 1, "the player's has its own anchor back")
+		fw.eq(playerPoint, "CENTER", "player anchor point")
+		fw.eq(playerRelativeTo, playerParent, "player anchored to the player frame again")
+		fw.eq(playerRelativePoint, "CENTER", "player relative point")
+		fw.eq(playerX, 3, "player x offset")
+		fw.eq(playerY, -7, "player y offset")
+
+		local petPoint, petRelativeTo, petRelativePoint, petX, petY = pet:GetPoint(1)
+
+		fw.eq(pet:GetNumPoints(), 1, "the pet's has its own anchor back, not the player's")
+		fw.eq(petPoint, "CENTER", "pet anchor point")
+		fw.eq(petRelativeTo, petParent, "pet anchored to the pet frame again")
+		fw.eq(petRelativePoint, "CENTER", "pet relative point")
+		fw.eq(petX, -2, "pet x offset")
+		fw.eq(petY, 4, "pet y offset")
+	end)
+
+	fw.it("covers its parent again when it had no anchors of its own", function()
+		local context = LoginWith({ HitIndicator = true })
+		local main = _G.PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
+		-- a region placed with SetAllPoints reports no points, and the restore has to put that
+		-- back rather than leave it unanchored
+		local indicator = WowMock.NewFrame("Frame", nil, main)
+
+		main.HitIndicator = indicator
+
+		context.Addon:Run()
+
+		fw.neq(indicator:GetParent(), main, "parked")
+		fw.eq(indicator:GetNumPoints(), 0, "still carrying no anchors of its own")
+
+		_G.MiniHiderDB.HitIndicator = false
+		context.Addon:Run()
+
+		fw.eq(indicator:GetParent(), main, "back on the player frame")
+		-- the mock stores SetAllPoints as a point where the real client reports none, so the
+		-- count going up stands in for the call having happened
+		fw.eq(indicator:GetNumPoints(), 1, "covering its parent again rather than floating free")
+	end)
+
+	fw.it("does not error, and still parks the pet's, when the client has no player hit indicator", function()
+		local context = LoginWith({ HitIndicator = true })
+		local pet, petParent = NewPetHitIndicator()
+
+		fw.is_nil(
+			_G.PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HitIndicator,
+			"the mock has no player hit indicator, which stands in for a client that dropped the path"
+		)
+
+		fw.no_error(function()
+			context.Addon:Run()
+		end, "a missing player hit indicator is skipped rather than erroring")
+
+		fw.neq(pet:GetParent(), petParent, "the pet's is still parked")
+	end)
+
+	fw.it("does not error, and still parks the player's, when the client has no pet hit indicator", function()
+		local context = LoginWith({ HitIndicator = true })
+		local player, main = NewHitIndicator()
+
+		fw.is_nil(_G.PetHitIndicator, "the mock has no pet hit indicator, which stands in for no pet out")
+
+		fw.no_error(function()
+			context.Addon:Run()
+		end, "a missing pet hit indicator is skipped rather than erroring")
+
+		fw.neq(player:GetParent(), main, "the player's is still parked")
+	end)
+
+	fw.it("parks a hit indicator that only shows up after the setting was already on", function()
+		local context = LoginWith({ HitIndicator = true })
+		local player, main = NewHitIndicator()
+
+		context.Addon:Run()
+		fw.neq(player:GetParent(), main, "the player's is parked from the first pass")
+
+		-- stands in for a pet summoned after the toggle was already switched on
+		local pet, petParent = NewPetHitIndicator()
+
+		context.Addon:Run()
+
+		fw.neq(pet:GetParent(), petParent, "parked once it exists, even though the toggle was already on")
+	end)
+
+	fw.it("puts back a hit indicator that was away when the setting turned off", function()
+		local context = LoginWith({ HitIndicator = true })
+		local player, main = NewHitIndicator()
+		local pet, petParent = NewPetHitIndicator()
+
+		context.Addon:Run()
+		fw.neq(pet:GetParent(), petParent, "the pet's is parked")
+
+		-- stands in for a pet dismissed while the toggle was on, which takes its region away
+		_G.PetHitIndicator = nil
+
+		_G.MiniHiderDB.HitIndicator = false
+		context.Addon:Run()
+
+		fw.eq(player:GetParent(), main, "the player's comes home while the pet's is away")
+
+		_G.PetHitIndicator = pet
+		context.Addon:Run()
+
+		fw.eq(pet:GetParent(), petParent, "and the pet's comes home once it is back")
+	end)
+
+	fw.it("leaves a restored indicator alone on later passes", function()
+		local context = LoginWith({ HitIndicator = true })
+		local player, main = NewHitIndicator()
+		local elsewhere = WowMock.NewFrame("Frame")
+
+		context.Addon:Run()
+		_G.MiniHiderDB.HitIndicator = false
+		context.Addon:Run()
+		fw.eq(player:GetParent(), main, "restored")
+
+		player:SetParent(elsewhere)
+		player:ClearAllPoints()
+		context.Addon:Run()
+
+		fw.eq(player:GetParent(), elsewhere, "left alone after being restored")
+		fw.eq(player:GetNumPoints(), 0, "no anchors forced back on")
 	end)
 end)

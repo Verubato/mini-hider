@@ -23,6 +23,7 @@ local dbDefaults = {
 	HotKeysBorder = false,
 	StatusTrackingBarManager = false,
 	Helptips = false,
+	HitIndicator = false,
 }
 ---@class CharDB
 local charDbDefaults = {
@@ -239,6 +240,18 @@ function M:Init()
 			end,
 			SetValue = function(enabled)
 				db.Helptips = enabled
+				addon:Run()
+			end,
+		},
+		{
+			Parent = panel,
+			LabelText = "Hit indicator",
+			Tooltip = "Hides the damage and healing numbers that flash over the player and pet portraits.",
+			GetValue = function()
+				return db.HitIndicator
+			end,
+			SetValue = function(enabled)
+				db.HitIndicator = enabled
 				addon:Run()
 			end,
 		},

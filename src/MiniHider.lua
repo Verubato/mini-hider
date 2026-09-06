@@ -11,6 +11,8 @@ local db
 local charDb
 -- keep track of stuff we hid to avoid touching things that we didn't change
 local didWeHide = {}
+-- where each hit indicator sat before we parked it, so turning the option off puts it back
+local hitIndicatorHomes = {}
 
 local function ShowHidePlayerCornerIcon()
 	local target = PlayerFrame
@@ -373,6 +375,72 @@ local function ShowHideHelpTips()
 	didWeHide["Helptips"] = not show
 end
 
+local function RememberHitIndicatorHome(homeKey, target)
+	-- only the first pass, otherwise we'd record our own hidden parent as the original
+	if hitIndicatorHomes[homeKey] then
+		return
+	end
+
+	local points = {}
+
+	-- reparenting can drop a region's anchors, and one that comes back unanchored lands in
+	-- the middle of the screen
+	for i = 1, target:GetNumPoints() do
+		points[#points + 1] = { target:GetPoint(i) }
+	end
+
+	hitIndicatorHomes[homeKey] = { Parent = target:GetParent(), Points = points }
+end
+
+local function RestoreHitIndicator(homeKey, target)
+	local home = hitIndicatorHomes[homeKey]
+
+	if not home then
+		return
+	end
+
+	target:SetParent(home.Parent)
+	target:ClearAllPoints()
+
+	-- no points recorded means it was covering its parent, which is how GetPoint reports a
+	-- region placed with SetAllPoints
+	if #home.Points == 0 then
+		target:SetAllPoints(home.Parent)
+	end
+
+	for _, point in ipairs(home.Points) do
+		target:SetPoint(point[1], point[2], point[3], point[4], point[5])
+	end
+
+	hitIndicatorHomes[homeKey] = nil
+end
+
+-- blizzard sets these regions' alpha every time they flash a number, so fading doesn't stick
+local function ParkOrRestoreHitIndicator(homeKey, target, show)
+	-- skip a region the client hands us in a shape we can't move
+	if not target or not target.SetParent then
+		return
+	end
+
+	if show then
+		RestoreHitIndicator(homeKey, target)
+	else
+		RememberHitIndicatorHome(homeKey, target)
+		target:SetParent(hiddenFrame)
+	end
+end
+
+-- hitIndicatorHomes does didWeHide's job here, one record per region
+local function ShowHideHitIndicator()
+	local show = type(db.HitIndicator) == "boolean" and not db.HitIndicator
+	local main = PlayerFrame
+		and PlayerFrame.PlayerFrameContent
+		and PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
+
+	ParkOrRestoreHitIndicator("Player", main and main.HitIndicator, show)
+	ParkOrRestoreHitIndicator("Pet", PetHitIndicator, show)
+end
+
 function addon:Run()
 	if InCombatLockdown() then
 		mini:NotifyCombatLockdown()
@@ -394,6 +462,7 @@ function addon:Run()
 	ShowHideMicroMenu()
 	ShowHideXpAndRep()
 	ShowHideHelpTips()
+	ShowHideHitIndicator()
 end
 
 local function OnEvent()
