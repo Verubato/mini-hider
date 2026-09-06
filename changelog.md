@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0
+
+Added an option to hide the hit indicators, the damage and healing numbers that flash over the player and pet portraits.
+
+Fixed the arena title being force-shown even when MiniHider was not the addon that hid it.
+
 ## 1.6.7
 
 UI improvements.

@@ -2,13 +2,13 @@
 
 ## What it is
 
-MiniHider hides individual pieces of the default Blizzard UI for a cleaner look: the resting "zzz" animation, prestige badges, the player level text, party/arena frame titles, the bags bar, the micro menu, action bar hotkey text and borders, the XP/reputation bars, help tips, the stance bar, and more. Everything is a checkbox: checked = hidden, unchecked = shown.
+MiniHider hides individual pieces of the default Blizzard UI for a cleaner look: the resting "zzz" animation, prestige badges, the player level text, party/arena frame titles, the bags bar, the micro menu, action bar hotkey text and borders, the XP/reputation bars, help tips, the hit indicators, the stance bar, and more. Everything is a checkbox: checked = hidden, unchecked = shown.
 
 ## Facts
 
 | Item | Value |
 |---|---|
-| Addon version | 1.6.6 |
+| Addon version | 1.7.0 |
 | Author | Verz |
 | Interface versions (TOC) | 120100 (Retail only) |
 | Saved variables | MiniHiderDB (account-wide), MiniHiderCharDB (per character) |
@@ -45,6 +45,7 @@ Checked = hidden. Six elements are hidden by default on a fresh install; the res
 | HotKeys Border | Unchecked | The border (normal texture) on action bar buttons, bars 1-8 |
 | XP and Rep | Unchecked | The XP and reputation bars (status tracking bar) |
 | Help tips | Unchecked | Help tips such as new profession points and new collections (via the hideHelptips CVar) |
+| Hit indicator | Unchecked | The damage and healing numbers that flash over the player and pet portraits. Moved to a hidden parent rather than faded, because the client resets their alpha on every flash |
 
 ### Character settings (per character, "Character settings:" section)
 
@@ -71,4 +72,5 @@ There is no reset button and no other settings; the two sections above are the w
 - "There's a black square on my player portrait": that is the filler texture that patches the hole left by hiding the player corner icon. Unchecking "Player corner icon" removes it.
 - "MiniHider hid something another addon needs / another addon's frame": it only touches the specific Blizzard frames listed above, and only re-shows frames it hid itself.
 - "Help tips still appear": the setting sets the hideHelptips CVar when toggled; try toggling it off and on again out of combat, then check for other addons or game settings that manage help tips.
+- "The numbers still flash over my pet's portrait": the pet's indicator only exists while a pet is out, so summoning one after ticking the box leaves it showing until the next loading screen or the next time you toggle a setting. The player's is unaffected.
 - "Does it work on Classic?": no, the TOC only supports Retail 12.1.
