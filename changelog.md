@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.1
+
+Added WoW Forever support.
+
 ## 1.7.0
 
 Added an option to hide the hit indicators, the damage and healing numbers that flash over the player and pet portraits.
