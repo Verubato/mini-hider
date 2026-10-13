@@ -1,9 +1,9 @@
-## Interface: 120100, 16001
+## Interface: 120105, 120100, 16001
 ## Title: MiniHider
 ## Notes: Hides various frames for a cleaner UI.
 ## Category: Mini
 ## Author: Verz
-## Version: 1.7.1
+## Version: 1.7.2
 ## IconTexture: Interface\AddOns\MiniHider\Icon.blp
 ## SavedVariables: MiniHiderDB
 ## SavedVariablesPerCharacter: MiniHiderCharDB

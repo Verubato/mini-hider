@@ -8,9 +8,9 @@ MiniHider hides individual pieces of the default Blizzard UI for a cleaner look:
 
 | Item | Value |
 |---|---|
-| Addon version | 1.7.1 |
+| Addon version | 1.7.2 |
 | Author | Verz |
-| Interface versions (TOC) | 120100, 16001 (retail and Classic Beta 1.60) |
+| Interface versions (TOC) | 120105, 120100, 16001 (retail and Classic Beta 1.60) |
 | Saved variables | MiniHiderDB (account-wide), MiniHiderCharDB (per character) |
 | Slash commands | /minihider, /mh (both open the options panel) |
 | Options location | Game Menu -> Options -> AddOns -> MiniHider |
